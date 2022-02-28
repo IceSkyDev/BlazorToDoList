@@ -1,0 +1,83 @@
+version: "3.0"
+services:
+  web:
+    image: blazor_page
+    build:
+      context: ./BlazorDocker
+      dockerfile: Dockerfile
+    container_name: blazor_page_v1
+    ports:
+      - 8899:80
+  webapi:
+    image: blazor_webapi
+    build:
+      dockerfile: Dockerfile
+      context: ./WebApi
+    container_name: blazor_api_v1
+    ports:
+      - 8888:5000
+    depends_on:
+      - mysql
+  mysql:
+    image: mysql
+    ports:
+      - 3306:3306
+    container_name: blazor_mysql
+    volumes:
+      - /Users/tian.bin/Documents/00 Works/09 Test/BlazorDocker/BlazorDocker/Dockerfile
+      - ~/Documents/00 Works/09 Test/BlazorDocker/MySql/data:/var/lib/mysql
+      - ~/Documents/00 Works/09 Test/BlazorDocker/MySql/log:/var/log/mysql
+      - ~/Documents/00 Works/09 Test/BlazorDocker/MySql/config/my.cnf:/etc/my.cnf
+      - ~/Documents/00 Works/09 Test/BlazorDocker/MySql/init:/docker-entrypoint-initdb.d/
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+#  drone-server:
+#    image: drone/drone:2.9.1
+#    ports:
+#      - "80:80"
+#      - "443:443"
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#      - /var/lib/drone:/data
+#    restart: always
+#    environment:
+#      - DRONE_GITHUB_CLIENT_ID=cd82a594207c10cbbdd8
+#      - DRONE_GITHUB_CLIENT_SECRET=c5424c6852643f3f5552eae9e4686c2688f0ee9d
+#      - DRONE_RPC_SECRET=ccaf4035a0640be49ddd692ea34fb0c4
+#      - DRONE_SERVER_PROTO=http
+#      - DRONE_SERVER_HOST=127.0.0.1
+#      - DRONE_TLS_AUTOCERT=false
+#      - DRONE_RUNNER_CAPACITY=8
+#      - DRONE_DEBUG=false
+#      - DRONE_LOGS_DEBUG=false
+#      - DRONE_GIT_ALWAYS_AUTH=false
+#      - DRONE_SECRET_SECRET=free
+  docker_jenkins:
+    restart: always
+    image: jenkins/jenkins:lts
+    container_name: docker_jenkins
+    ports:
+      - '8080:8080'
+      - '50000:50000'
+    volumes:
+      - ./data/:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+      - /usr/lib/x86_64-linux-gnu/libltdl.so.7:/usr/lib/x86_64-linux-gnu/libltdl.so.7
+#  drone-agent:
+#    image: drone/agent:1.6.2
+#    command: agent
+#    restart: always
+#    depends_on:
+#      - drone-server
+#    volumes:
+#      - /var/run/docker.sock:/var/run/docker.sock
+#    environment:
+#      - DRONE_SERVER=drone-server:80
+#      - DRONE_RPC_SECRET=ccaf4035a0640be49ddd692ea34fb0c4
+#      - DRONE_RPC_SERVER=127.0.0.1
+#      - DRONE_SECRET=free
+networks:
+  default: 
+    driver: bridge
+  

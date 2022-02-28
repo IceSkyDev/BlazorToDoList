@@ -1,0 +1,166 @@
+@page "/todolist"
+@using BlazorDocker.ViewModels
+@inject HttpClient Http
+@using System.Text.Json
+
+<h1>ToDo List</h1>
+@if (ShowDetail)
+{
+    <Card Style="width:500px; background:lightGreen; margin:auto">
+        <Body>
+        <AntList Bordered DataSource="@ToDoItems">
+            <Header>
+                <Row Wrap="false">
+                    <AntDesign.Col Flex=@("50px")>
+                        <Button Type="@ButtonType.Primary" Shape="@ButtonShape.Circle" Icon="@IconType.Outline.ArrowLeft" OnClick="GoBack">
+                        </Button>
+                    </AntDesign.Col>
+                    <AntDesign.Col Flex=@("auto")>
+                        <div style="font-size:24px; font-weight:bold;">
+                            @SelectedDate.Date.ToString("yyyy-MM-dd")
+                        </div>
+                    </AntDesign.Col>
+                    <AntDesign.Col Flex=@("80px")>
+                        <div style="margin:4px">
+                            @ToDoItems.Count(i => i.Status > 0) / @ToDoItems.Count
+                        </div>
+                    </AntDesign.Col>
+                </Row>
+            </Header>
+            <ChildContent Context="item">
+                <ListItem>
+                    <Card Hoverable="true" Size="small" style="width:100%;">
+                        <Body>
+                        <Text Style="font-size:20px;margin:5px;" Strong="@(item.Status == 0)" Delete="@(item.Status == 1)">@item.Content</Text>
+                        @* <Button style="float:right" Type="@ButtonType.Primary" Shape="@ButtonShape.Circle" Icon="@IconType.TwoTone.CheckCircle" OnClick="@(() => FinishToDo(item))">
+                        </Button> *@
+                        <Button style="float:right" Type="@ButtonType.Primary" Shape="@ButtonShape.Circle" Icon="@IconType.TwoTone.Delete" Danger="true" OnClick="@(() => DeleteToDoItem(item))">
+                        </Button>
+                        <Checkbox Style="float:right;margin:6px" ValueChanged="@(() => ChangeStatus(item))" Value="@(item.Status==1)"></Checkbox>
+                        </Body>
+                    </Card>
+                </ListItem>
+            </ChildContent>
+            <Footer>
+                <AntDesign.Input Placeholder="ToDo Content" @bind-Value="@NewContent" Style="font-size:18px">
+                    <Prefix>
+                        <Icon Type="add"/>
+                    </Prefix>
+                    <Suffix>
+                        <Button Type="@ButtonType.Primary" Shape="@ButtonShape.Circle" Icon="@IconType.Outline.Plus" OnClick="AddToDoItem">
+                        </Button>
+                    </Suffix>
+                </AntDesign.Input>
+            </Footer>
+        </AntList>
+        </Body>
+    </Card>
+}
+else
+{
+    <Card Style="width:500px; background:lightBlue; margin:auto">
+        <Body>
+        <AntList Bordered DataSource="@Schedules">
+            <Header>
+                <DatePicker @bind-Value="DateToAdd"></DatePicker>
+                <Button OnClick="AddSchedule">
+                    @(DateToAdd.HasValue ? "Add" : "Refresh")
+                </Button>
+            </Header>
+            <ChildContent Context="sch">
+                <ListItem OnClick="() => ItemClick(sch.Date)">
+                    <Card Hoverable="true" Size="small" Style="width:100%">
+                        <Body>
+                        <span style="float:left">@sch.Date.ToString("yyyy-MM-dd")</span>
+                        <span style="float:right">@sch.Items.Count(i => i.Status > 0) / @sch.Items.Count</span>
+                        </Body>
+                    </Card>
+                </ListItem>
+            </ChildContent>
+        </AntList>
+        </Body>
+    </Card>
+}
+
+
+@code {
+    public DateTime? DateToAdd { get; set; }
+    public List<Schedule> Schedules { get; private set; } = new List<Schedule>();
+    public bool ShowDetail { get; set; }
+
+    public DateTime SelectedDate { get; set; }
+    public List<ToDoItem> ToDoItems { get; private set; } = new List<ToDoItem>();
+    public string NewContent { get; set; }
+
+    public async void ItemClick(DateTime date)
+    {
+        SelectedDate = date;
+        ToDoItems = await GetToDoItems(date);
+        ShowDetail = true;
+        NewContent = string.Empty;
+        StateHasChanged();
+    }
+
+    private async Task<List<ToDoItem>> GetToDoItems(DateTime date)
+    {
+        var todos = await Http.GetFromJsonAsync<List<ToDoItem>>($"ToDoList/{date:yyyy-MM-dd}");
+        return todos;
+    }
+
+    public async Task<List<Schedule>> GetSchedules()
+    {
+        var schedules = await Http.GetFromJsonAsync<List<Schedule>>($"ToDoList");
+        return schedules;
+    }
+
+    public async void AddSchedule()
+    {
+        if (DateToAdd.HasValue)
+        {
+            await Http.PostAsJsonAsync($"ToDoList", $"{DateToAdd.Value:yyyy-MM-dd}");
+        }
+        Schedules = await GetSchedules();
+        StateHasChanged();
+    }
+
+    public async void GoBack()
+    {
+        ShowDetail = false;
+        Schedules = await GetSchedules();
+        StateHasChanged();
+    }
+
+    public async void AddToDoItem()
+    {
+        await Http.PostAsJsonAsync($"ToDoList/{SelectedDate:yyyy-MM-dd}", NewContent);
+        ToDoItems = await GetToDoItems(SelectedDate);
+        StateHasChanged();
+    }
+
+    public async void ChangeStatus(ToDoItem item)
+    {
+        item.Status = item.Status == 0 ? 1 : 0;
+        UpdateToDoItem(item);
+    //ToDoItems = await GetToDoItems(SelectedDate);
+        StateHasChanged();
+    }
+
+    private async void UpdateToDoItem(ToDoItem item)
+    {
+        Console.WriteLine(JsonSerializer.Serialize(item));
+        await Http.PutAsJsonAsync($"ToDoList", item);
+    }
+
+    public async void DeleteToDoItem(ToDoItem item)
+    {
+        await Http.DeleteAsync($"ToDoList/{item.Id}");
+        ToDoItems = await GetToDoItems(SelectedDate);
+        StateHasChanged();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Schedules = await GetSchedules();
+    }
+
+}
