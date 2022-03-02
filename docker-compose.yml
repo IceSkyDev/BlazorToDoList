@@ -31,6 +31,22 @@ services:
       - ~/Documents/00 Works/09 Test/BlazorDocker/MySql/init:/docker-entrypoint-initdb.d/
     environment:
       MYSQL_ROOT_PASSWORD: root
+
+#  docker_jenkins:
+#    restart: always
+#    image: jenkins/jenkins:lts
+#    container_name: docker_jenkins
+#    privileged: true
+#    ports:
+#      - '8080:8080'
+#      - '50000:50000'
+#    volumes:
+#      - ./data/:/var/jenkins_home
+##      - /var/run/docker.sock:/var/run/docker.sock
+#      - /usr/local/bin/docker:/usr/bin/docker
+##      - $(which docker):/usr/bin/docker
+##      - /usr/lib/x86_64-linux-gnu/libltdl.so.7:/usr/lib/x86_64-linux-gnu/libltdl.so.7
+
 #  drone-server:
 #    image: drone/drone:2.9.1
 #    ports:
@@ -52,18 +68,7 @@ services:
 #      - DRONE_LOGS_DEBUG=false
 #      - DRONE_GIT_ALWAYS_AUTH=false
 #      - DRONE_SECRET_SECRET=free
-  docker_jenkins:
-    restart: always
-    image: jenkins/jenkins:lts
-    container_name: docker_jenkins
-    ports:
-      - '8080:8080'
-      - '50000:50000'
-    volumes:
-      - ./data/:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /usr/bin/docker:/usr/bin/docker
-      - /usr/lib/x86_64-linux-gnu/libltdl.so.7:/usr/lib/x86_64-linux-gnu/libltdl.so.7
+
 #  drone-agent:
 #    image: drone/agent:1.6.2
 #    command: agent
