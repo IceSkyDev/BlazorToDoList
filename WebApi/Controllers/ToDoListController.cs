@@ -98,7 +98,7 @@ namespace WebApi.Controllers
             dbContext.SaveChanges();
         }
 
-        [Route("/ev/{name}")]
+        [Route("ev/{name}")]
         [HttpGet]
         public string GetEnvironmentValue(string name)
         {
