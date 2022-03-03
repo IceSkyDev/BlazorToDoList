@@ -17,7 +17,7 @@ services:
     ports:
       - 8888:5000
     environment:
-      Test: $TEST_VAR
+      DBCNN: $CNNSTR
     depends_on:
       - mysql
   mysql:
