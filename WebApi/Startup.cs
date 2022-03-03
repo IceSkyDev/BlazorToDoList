@@ -37,8 +37,8 @@ namespace WebApi
             services.AddControllers();
             services.AddScoped<DbContext, BlazorDbContext>(); 
             var cc = Environment.GetEnvironmentVariable("Test");
-            var cnn=Encoding.Default.GetString(Convert.FromBase64String(Configuration["ConnectionSetting:MySql"]));
-            //var cnn=Encoding.Default.GetString(Convert.FromBase64String(cc));
+            // var cnn=Encoding.Default.GetString(Convert.FromBase64String(Configuration["ConnectionSetting:MySql"]));
+            var cnn=Encoding.Default.GetString(Convert.FromBase64String(cc));
             services.AddDbContext<BlazorDbContext>(options => options.UseMySQL(cnn));
             services.AddSwaggerGen(c =>
             {
