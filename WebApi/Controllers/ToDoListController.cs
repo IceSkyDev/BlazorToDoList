@@ -84,25 +84,25 @@ namespace WebApi.Controllers
             return item;
         }
 
-        [Route("{id:int}")]
-        [HttpDelete]
-        public void DeleteToDoItem(int id)
-        {
-            var item = dbContext.ToDoItem.FirstOrDefault(i => i.Id == id);
-            if (item == null)
-            {
-                return;
-            }
-
-            dbContext.ToDoItem.Remove(item);
-            dbContext.SaveChanges();
-        }
-
-        [Route("ev/{name}")]
-        [HttpGet]
-        public string GetEnvironmentValue(string name)
-        {
-            return Environment.GetEnvironmentVariable(name);
-        }
+        // [Route("{id:int}")]
+        // [HttpDelete]
+        // public void DeleteToDoItem(int id)
+        // {
+        //     var item = dbContext.ToDoItem.FirstOrDefault(i => i.Id == id);
+        //     if (item == null)
+        //     {
+        //         return;
+        //     }
+        //
+        //     dbContext.ToDoItem.Remove(item);
+        //     dbContext.SaveChanges();
+        // }
+        //
+        // [Route("ev/{name}")]
+        // [HttpGet]
+        // public string GetEnvironmentValue(string name)
+        // {
+        //     return Environment.GetEnvironmentVariable(name);
+        // }
     }
 }
