@@ -97,5 +97,12 @@ namespace WebApi.Controllers
             dbContext.ToDoItem.Remove(item);
             dbContext.SaveChanges();
         }
+
+        [Route("/ev/{name}")]
+        [HttpGet]
+        public string GetEnvironmentValue(string name)
+        {
+            return Environment.GetEnvironmentVariable(name);
+        }
     }
 }
