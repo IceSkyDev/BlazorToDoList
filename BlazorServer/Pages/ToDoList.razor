@@ -99,7 +99,7 @@ else
         ToDoItems = await GetToDoItems(date);
         ShowDetail = true;
         NewContent = string.Empty;
-        StateHasChanged();
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task<List<ToDoItem>> GetToDoItems(DateTime date)
@@ -115,8 +115,7 @@ else
             toDoService.AddSchedule(DateToAdd.Value);
         }
         Schedules = await toDoService.GetSchedules();
-        ShouldRender();
-        StateHasChanged();
+        await InvokeAsync(StateHasChanged);
     }
 
     public async void GoBack()
